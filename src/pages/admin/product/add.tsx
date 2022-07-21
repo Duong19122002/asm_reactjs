@@ -1,148 +1,138 @@
-import { Button, Col, Form, Input, InputNumber, Row, Typography, message } from 'antd'
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
-import { useNavigate } from 'react-router';
-import UploadImage from '../../../components/UploadImage';
-type ProductAddProps = {
-   handleAdd: (data: any) => void
+import React from "react";
+import styled from "styled-components";
+import { Typography, Col, Row, Button, Checkbox, Form, Input, InputNumber, Select, message } from 'antd'
+import UploadImage from "../../../components/UploadImage";
+import { add } from "../../../api/product";
+import { useNavigate } from "react-router-dom";
+import UploadTest from "../../../components/UploadTest";
+
+const { TextArea } = Input
+const { Option } = Select;
+
+const AddProductPage: React.FC = () => {
+	const navigate = useNavigate()
+	const onFinish = async (values: any) => {
+		console.log('Success:', values);
+
+		try {
+			const data = await add(values)
+			message.success("Tạo mới thành công")
+			navigate(-1)
+		} catch (err) {
+			message.error("Có lỗi xảy ra")
+		}
+	};
+
+	const onFinishFailed = (errorInfo: any) => {
+		console.log('Failed:', errorInfo);
+	};
+	return (
+		<>
+			<Breadcrumb>
+				<Typography.Title level={2} style={{ margin: 0 }}>
+					Thêm mới
+				</Typography.Title>
+			</Breadcrumb>
+			<Row gutter={16}>
+				<Col span={10}>
+					<UploadImage />
+					{/* <UploadTest/> */}
+				</Col>
+				<Col span={14}>
+					<Typography.Title level={5}>Thông tin sản phẩm</Typography.Title>
+					<Form
+						// name="product"
+						initialValues={{}}
+						onFinish={onFinish}
+						onFinishFailed={onFinishFailed}
+						autoComplete="on"
+						labelCol={{ span: 24 }}
+					>
+						<Form.Item
+							name="name"
+							labelCol={{ span: 24 }}
+							label="Tên sản phẩm"
+							rules={[{ required: true, message: 'Tên sản phẩm không được trống' }]}
+						>
+							<Input size="large" />
+						</Form.Item>
+
+						<Row gutter={16}>
+							<Col span={12}>
+								<Form.Item
+									name="originalPrice"
+									label="Giá gốc"
+									labelCol={{ span: 24 }}
+									rules={[{ required: true, message: 'Gía sản phẩm' }]}
+								>
+									<InputNumber style={{ width: '100%' }} size="large" />
+								</Form.Item>
+							</Col>
+							<Col span={12}>
+								<Form.Item
+									name="saleOffPrice"
+									label="Giá giảm"
+									labelCol={{ span: 24 }}
+									rules={[{ required: true, message: 'Gía sản phẩm' }]}
+								>
+									<InputNumber style={{ width: '100%' }} size="large" />
+								</Form.Item>
+							</Col>
+							<Col span={12}>
+								<Form.Item
+									label="Phân loại"
+									name="categories"
+									rules={[{ required: true }]}
+								>
+									<Select style={{ width: '100%' }} size="large">
+										<Option value="phone">Điện thoại</Option>
+										<Option value="laptop">Laptop</Option>
+										<Option value="accessories" disabled>
+											Phụ kiện
+										</Option>
+										<Option value="tablet">Máy tính bảng</Option>
+									</Select>
+								</Form.Item>
+							</Col>
+						</Row>
+
+						<Form.Item
+							name="feature"
+							labelCol={{ span: 24 }}
+							label="Đặc điểm nổi bật"
+							rules={[{ required: true, message: 'Đặc điểm sản phẩm' }]}
+						>
+							<TextArea name="feature" />
+						</Form.Item>
+						<Form.Item
+							name="description"
+							labelCol={{ span: 24 }}
+							label="Mô tả sản phẩm"
+							rules={[{ required: true, message: 'Mô tả sản phẩm' }]}
+						>
+							<TextArea name="description" />
+						</Form.Item>
+
+						<Form.Item>
+							<Button type="primary" htmlType="submit">
+								Tạo mới sản phẩm
+							</Button>
+						</Form.Item>
+					</Form>
+				</Col>
+			</Row>
+		</>
+	)
 }
 
-const { TextArea } = Input;
+const Breadcrumb = styled.div`
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+`
 
-type InputForm = {
-   name: string,
-   originalPrice: number,
-   saleOffPrice: number,
-   image: string,
-   feature: string,
-   description: string
-}
+const Label = styled.div`
+	font-size: 13px;
+`
 
-const ProductAdd = ({ handleAdd }: ProductAddProps) => {
-   const navigate = useNavigate();
-   const { handleSubmit, formState: { errors }, control } = useForm<InputForm>();
-
-   const onFinish: SubmitHandler<InputForm> = (values: any) => {
-      message.success('Thêm thành công')
-      handleAdd(values);
-      navigate('/admin/phone')
-   };
-
-   const onFinishFailed = (errorInfo: any) => {
-      console.log('Failed:', errorInfo);
-      message.error('Thêm thất bại')
-   };
-
-   return (
-      <div>
-         <Typography.Title level={3}>Thêm mới sản phẩm</Typography.Title>
-         <Form
-            autoComplete="on"
-            onFinish={handleSubmit(onFinish)}
-            onFinishFailed={onFinishFailed}
-         >
-            <Row gutter={16}>
-               <Col span={10}>
-                  <Controller
-                     name='image'
-                     control={control}
-                     rules={{ required: true }}
-                     render={({ field: { onChange } }) =>
-                        <UploadImage onChange={onChange} />
-                     }
-                  />
-               </Col>
-               <Col span={14}>
-                  <Typography.Title level={5}>Thông tin sản phẩm</Typography.Title>
-
-                  <Controller
-                     name='name'
-                     control={control}
-                     rules={{ required: true }}
-                     render={({ field }) =>
-                        <Form.Item
-                           labelCol={{ span: 24 }}
-                           label="Tên sản phẩm"
-                        >
-                           <Input size="large" {...field} />
-                        </Form.Item>
-                     } />
-                  {errors.name && <Typography.Text type='danger'>Bạn cần nhập tên sản phẩm</Typography.Text>}
-
-                  <Row gutter={16}>
-                     <Col span={12}>
-                        <Controller
-                           name="originalPrice"
-                           control={control}
-                           rules={{ required: true }}
-                           render={({ field }) =>
-                              <Form.Item
-                                 label="Giá gốc"
-                                 labelCol={{ span: 24 }}
-                              >
-                                 <InputNumber style={{ width: '100%' }} size="large" {...field} />
-                              </Form.Item>
-                           }
-                        />
-                        {errors.originalPrice && <Typography.Text type='danger'>Bạn cần nhập giá sản phẩm</Typography.Text>}
-                     </Col>
-
-                     <Col span={12}>
-                        <Controller
-                           name="saleOffPrice"
-                           control={control}
-                           rules={{ required: true }}
-                           render={({ field }) =>
-                              <Form.Item
-                                 label="Giá giảm"
-                                 labelCol={{ span: 24 }}
-                              >
-                                 <InputNumber style={{ width: '100%' }} size="large" {...field} />
-                              </Form.Item>
-                           }
-                        />
-                        {errors.saleOffPrice && <Typography.Text type='danger'>Bạn cần nhập giá khuyến mãi</Typography.Text>}
-                     </Col>
-                  </Row>
-
-                  <Controller
-                     name="feature"
-                     control={control}
-                     rules={{ required: true }}
-                     render={({ field }) =>
-                        <Form.Item
-                           labelCol={{ span: 24 }}
-                           label="Đặc điểm nổi bật"
-                        >
-                           <TextArea {...field} />
-                        </Form.Item>
-
-                     } />
-                  {errors.feature && <Typography.Text type='danger'>Bạn cần nhập đặc điểm</Typography.Text>}
-
-                  <Controller
-                     name="description"
-                     control={control}
-                     rules={{ required: true }}
-                     render={({ field }) =>
-                        <Form.Item
-                           labelCol={{ span: 24 }}
-                           label="Mô tả sản phẩm"
-                        >
-                           <TextArea {...field} />
-                        </Form.Item>
-                     } />
-                  {errors.description && <Typography.Text type='danger'>Bạn cần nhập mô tả</Typography.Text>}
-
-                  <Form.Item>
-                     <Button type="primary" htmlType="submit">
-                        Tạo mới sản phẩm
-                     </Button>
-                  </Form.Item>
-               </Col>
-            </Row>
-         </Form>
-      </div >
-   )
-}
-
-export default ProductAdd
+export default AddProductPage
