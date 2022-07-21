@@ -61,7 +61,7 @@ const AdminLayout = (props: Props) => {
             >
                <SearchInput size="middle" prefix={<AiOutlineSearch />} />
             </SearchBar>
-            <UserName>Xin chào Lê Minh Khang</UserName>
+            <UserName>Xin chào: Nguyễn Ngọc Dương</UserName>
          </HeaderContainer>
          <Layout>
             <Sider width={200} className="site-layout-background" style={{ height: '170vh ' }}>
